@@ -3,22 +3,33 @@ DMIEDECODE=$(which dmidecode)
 GREP=$(which grep)
 YUM=$(which yum)
 AWK=$(which awk)
+SYSTEMCTL=$(which systemctl)
+PackageVMware='open-vm-tools'
+ServiceVMware='vmtoolsd.service'
+PackageRHEV='ovirt-guest-agent-common'
+ServiceRHEV='ovirt-guest-agent.service'
+PackageKVM='qemu-guest-agent'
+ServiceKVM='qemu-guest-agent.service'
 
 MACHINE_TYPE=$(${DMIEDECODE} | ${GREP} -A10 '^System Information' | ${GREP} 'Product Name' | ${AWK} '{print $3;}')
 PACKAGE=''
+SERVICENAME=''
 
 # Right now we need to package vmware tools and add it to Softwere Channel
 case $MACHINE_TYPE in
   VMware)
-    PACKAGE='open-vm-tools'
+    PACKAGE=${PackageVMware}
+    SERVICENAME=${ServiceVMware}
     echo "This machine is in Vsphere"
     ;;
   RHEV)
-    PACKAGE='ovirt-guest-agent-common.noarch'
+    PACKAGE=${PackageRHEV}
+    SERVICENAME=${ServiceRHEV}
     echo "This Machine is in RHEV"
     ;;
   KVM)
-    PACKAGE="qemu-guest-agent"
+    PACKAGE=${PackageKVM}
+    SERVICENAME=${ServiceKVM}
     echo "This machine is in KVM"
 esac
 
@@ -27,6 +38,8 @@ if [ ! -z "$PACKAGE" ]; then
   ${YUM} info ${PACKAGE}
   if [ $? = 0 ]; then
     ${YUM} install -y ${PACKAGE}
+    ${SYSTEMCTL} enable ${SERVICENAME}
+    ${SYSTEMCTL} start ${SERVICENAME}
   else
     echo "${PACKAGE} was not found"
     exit 1

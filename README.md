@@ -1,5 +1,5 @@
 # Purpose
-The purpose of this script is for machines to install respective vm tools. I mean to call this script from the kickstart file to install respective vm tools for where the machine is installed.
+The purpose of this script is for machines to install respective vm tools. I mean to call this script from the kickstart file to install respective vm tools for where the machine is installed.(Using systemd to control service you can tweak services to switch to older versions)
 
 # Note
 - Please be sure to have the channels containing the VM Tool package in your channel.
